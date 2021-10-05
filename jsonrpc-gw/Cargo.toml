@@ -7,13 +7,16 @@ license = "MIT"
 
 [dependencies]
 anyhow = { version = "1" }
-thiserror = { version = "1" }
+async-std = { version = "1.8.0", features = ["attributes"] }
+async-trait = { version = "0.1" }
+dotenv = "0.15"
+jsonrpc-proto = { path = "../jsonrpc-proto" }
+redis = { version = "0.21", features = ["async-std-comp"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
-dotenv = "0.15"
+thiserror = { version = "1" }
 structopt = { version = "0.3", default-features = false }
-redis = { version = "0.21", features = ["async-std-comp"] }
-async-std = { version = "1.8.0", features = ["attributes"] }
+tide = { version = "0.16", default-features = false, features = ["h1-server"] }
 tracing = { version = "0.1" }
+tracing-futures =  { version = "0.2" }
 tracing-subscriber = { version = "0.2" }
-jsonrpc-proto = { path = "../jsonrpc-proto" }

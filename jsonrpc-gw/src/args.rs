@@ -14,6 +14,8 @@ pub struct Args {
     redis_password: String,
     #[structopt(long, default_value = "0", env = "REDIS_DB")]
     redis_db: u32,
+    #[structopt(short, long, default_value = "0.0.0.0:8000", env = "LISTEN")]
+    pub addr: String,
 }
 
 pub fn parse() -> anyhow::Result<Args> {
