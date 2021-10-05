@@ -1,9 +1,43 @@
 use structopt::StructOpt;
 use tracing_subscriber::prelude::*;
 
+#[derive(StructOpt, Debug, Clone)]
+enum Command {
+    Add {
+        #[structopt(long)]
+        name: String,
+        #[structopt(long)]
+        slug: Option<String>,
+        #[structopt(long, default_value = "/")]
+        path: String,
+        #[structopt(short, long)]
+        url: String,
+        #[structopt(long)]
+        strip: bool,
+    },
+    Get {
+        #[structopt(long)]
+        app: String,
+    },
+    Update {
+        #[structopt(long)]
+        app: String,
+        #[structopt(long)]
+        active: Option<bool>,
+        #[structopt(long)]
+        path: Option<String>,
+        #[structopt(short, long)]
+        url: Option<String>,
+        #[structopt(long)]
+        strip: Option<bool>,
+    },
+    List,
+}
+
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(name = "jsonrpc-app", about = "RPC Apps management CLI utility")]
 pub struct Args {
+    /// Redis app
     #[structopt(long, default_value = "localhost", env = "REDIS_HOST")]
     redis_host: String,
     #[structopt(long, default_value = "6379", env = "REDIS_PORT")]
@@ -14,6 +48,8 @@ pub struct Args {
     redis_password: String,
     #[structopt(long, default_value = "0", env = "REDIS_DB")]
     redis_db: u32,
+    #[structopt(subcommand)]
+    operation: Command,
 }
 
 pub fn parse() -> anyhow::Result<Args> {
