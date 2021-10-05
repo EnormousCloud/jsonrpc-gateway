@@ -21,9 +21,9 @@ pub struct VersionData {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProxyEndpoint {
-    listen_path: String,
-    target_url: String,
-    strip_listen_path: bool,
+    path: String,
+    url: String,
+    strip: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,7 +41,8 @@ pub struct Application {
 pub struct RpcKey {
     pub key_id: String,
     pub key_hash: String,
-    pub apps: Vec<String>,
+    pub app: String,
+    pub tags: Vec<String>,
     pub expires: u32,
     pub active: bool,
     pub quota_second: Option<u64>,
@@ -55,7 +56,8 @@ pub struct RpcKey {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RpcKeyAddRequest {
-    pub apps: Vec<String>,
+    pub app: String,
+    pub tags: Vec<String>,
     pub expires: u32,
     pub quota_second: Option<u64>,
     pub quota_minute: Option<u64>,
@@ -101,4 +103,12 @@ pub struct RpcKeyResponse {
     pub status: RpcResponseStatus,
     pub action: RpcKeyAction,
     pub keys: Vec<RpcKey>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum OutputFormat {
+    Table,
+    Json,
+    Yaml,
 }

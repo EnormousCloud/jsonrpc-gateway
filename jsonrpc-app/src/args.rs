@@ -1,10 +1,11 @@
+use jsonrpc_proto::OutputFormat;
 use structopt::StructOpt;
 use tracing_subscriber::prelude::*;
 
 #[derive(StructOpt, Debug, Clone)]
 enum Command {
     Add {
-        #[structopt(long)]
+        #[structopt(short, long)]
         name: String,
         #[structopt(long)]
         slug: Option<String>,
@@ -16,11 +17,11 @@ enum Command {
         strip: bool,
     },
     Get {
-        #[structopt(long)]
+        #[structopt(short, long)]
         app: String,
     },
     Update {
-        #[structopt(long)]
+        #[structopt(short, long)]
         app: String,
         #[structopt(long)]
         active: Option<bool>,
@@ -37,7 +38,6 @@ enum Command {
 #[derive(Debug, StructOpt, Clone)]
 #[structopt(name = "jsonrpc-app", about = "RPC Apps management CLI utility")]
 pub struct Args {
-    /// Redis app
     #[structopt(long, default_value = "localhost", env = "REDIS_HOST")]
     redis_host: String,
     #[structopt(long, default_value = "6379", env = "REDIS_PORT")]
@@ -48,6 +48,8 @@ pub struct Args {
     redis_password: String,
     #[structopt(long, default_value = "0", env = "REDIS_DB")]
     redis_db: u32,
+    #[structopt(short, long)]
+    format: Option<OutputFormat>,
     #[structopt(subcommand)]
     operation: Command,
 }
