@@ -1,9 +1,9 @@
-use jsonrpc_proto::OutputFormat;
+use jsonrpc_proto::formatter::OutputFormat;
 use structopt::StructOpt;
 use tracing_subscriber::prelude::*;
 
 #[derive(StructOpt, Debug, Clone)]
-enum Command {
+pub enum Command {
     Add {
         #[structopt(short, long)]
         name: String,
@@ -39,19 +39,26 @@ enum Command {
 #[structopt(name = "jsonrpc-app", about = "RPC Apps management CLI utility")]
 pub struct Args {
     #[structopt(long, default_value = "localhost", env = "REDIS_HOST")]
-    redis_host: String,
+    pub redis_host: String,
     #[structopt(long, default_value = "6379", env = "REDIS_PORT")]
-    redis_port: u32,
+    pub redis_port: u32,
     #[structopt(long, default_value = "", env = "REDIS_USERNAME")]
-    redis_username: String,
+    pub redis_username: String,
     #[structopt(long, default_value = "", env = "REDIS_PASSWORD")]
-    redis_password: String,
+    pub redis_password: String,
     #[structopt(long, default_value = "0", env = "REDIS_DB")]
-    redis_db: u32,
-    #[structopt(short, long)]
-    format: Option<OutputFormat>,
+    pub redis_db: u32,
+    #[structopt(long, env = "REDIS_TLS")]
+    pub redis_tls: bool,
+    #[structopt(
+        short,
+        long,
+        possible_values = &OutputFormat::variants(), 
+        case_insensitive = true,
+    )]
+    pub format: Option<OutputFormat>,
     #[structopt(subcommand)]
-    operation: Command,
+    pub cmd: Command,
 }
 
 pub fn parse() -> anyhow::Result<Args> {
