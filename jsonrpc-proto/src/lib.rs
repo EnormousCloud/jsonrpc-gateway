@@ -1,23 +1,7 @@
+pub mod redis;
+
 use serde::{Deserialize, Serialize};
-
-/// How authentication is defined
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Authentication {
-    pub auth_header_name: Option<String>,
-}
-
-/// Description of how definition is defined
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Definition {
-    pub location: String,
-    pub key: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VersionData {
-    pub not_versioned: bool,
-    // versions: Option<HashMap<String, VersionDeclaration>>
-}
+use slug::slugify;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProxyEndpoint {
@@ -30,11 +14,22 @@ pub struct ProxyEndpoint {
 pub struct Application {
     pub name: String,
     pub slug: String,
-    pub auth: Authentication,
-    pub definition: Option<Definition>,
-    pub version_data: Option<VersionData>,
     pub proxy: ProxyEndpoint,
     pub active: bool,
+}
+
+impl Application {
+    pub fn new(name: &str, slug: Option<String>, path: String, url: String, strip: bool) -> Self {
+        Self {
+            name: name.to_owned(),
+            slug: match slug {
+                Some(x) => x,
+                None => slugify(name),
+            },
+            proxy: ProxyEndpoint { path, url, strip },
+            active: true,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -54,7 +49,7 @@ pub struct RpcKey {
     pub quota_year: Option<u64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct RpcKeyAddRequest {
     pub app: String,
     pub tags: Vec<String>,
@@ -68,22 +63,23 @@ pub struct RpcKeyAddRequest {
     pub quota_year: Option<u64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum RpcResponseStatus {
     OK,
     Failure,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub enum RpcKeyAction {
     Add,
     Get,
     List,
+    Update,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct RpcKeyAddResponse {
     pub action: RpcKeyAction,
     pub status: RpcResponseStatus,
@@ -91,24 +87,16 @@ pub struct RpcKeyAddResponse {
     pub key_hash: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct RpcKeyListResponse {
     pub status: RpcResponseStatus,
     pub action: RpcKeyAction,
     pub keys: Vec<RpcKey>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct RpcKeyResponse {
     pub status: RpcResponseStatus,
     pub action: RpcKeyAction,
     pub keys: Vec<RpcKey>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum OutputFormat {
-    Table,
-    Json,
-    Yaml,
 }
