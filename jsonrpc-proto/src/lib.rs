@@ -1,3 +1,4 @@
+pub mod formatter;
 pub mod redis;
 
 use serde::{Deserialize, Serialize};
