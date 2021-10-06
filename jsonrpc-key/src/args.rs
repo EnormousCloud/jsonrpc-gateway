@@ -1,9 +1,9 @@
-use jsonrpc_proto::OutputFormat;
+use jsonrpc_proto::formatter::OutputFormat;
 use structopt::StructOpt;
 use tracing_subscriber::prelude::*;
 
 #[derive(StructOpt, Debug, Clone)]
-enum Command {
+pub enum Command {
     Gen {
         #[structopt(short, long)]
         app: String,
@@ -13,19 +13,19 @@ enum Command {
         expires: Option<u32>,
         #[structopt(long)]
         active: Option<bool>,
-        #[structopt(rename = "per-second", long)]
+        #[structopt(name = "per-second", long)]
         quota_second: Option<u64>,
-        #[structopt(rename = "per-minute", long)]
+        #[structopt(name = "per-minute", long)]
         quota_minute: Option<u64>,
-        #[structopt(rename = "per-hour", long)]
+        #[structopt(name = "per-hour", long)]
         quota_hour: Option<u64>,
-        #[structopt(rename = "per-day", long)]
+        #[structopt(name = "per-day", long)]
         quota_day: Option<u64>,
-        #[structopt(rename = "per-week", long)]
+        #[structopt(name = "per-week", long)]
         quota_week: Option<u64>,
-        #[structopt(rename = "per-month", long)]
+        #[structopt(name = "per-month", long)]
         quota_month: Option<u64>,
-        #[structopt(rename = "per-year", long)]
+        #[structopt(name = "per-year", long)]
         quota_year: Option<u64>,
     },
     Get {
@@ -45,19 +45,19 @@ enum Command {
         active: Option<bool>,
         #[structopt(short, long)]
         tag: Vec<String>,
-        #[structopt(rename = "per-second", long)]
+        #[structopt(name = "per-second", long)]
         quota_second: Option<u64>,
-        #[structopt(rename = "per-minute", long)]
+        #[structopt(name = "per-minute", long)]
         quota_minute: Option<u64>,
-        #[structopt(rename = "per-hour", long)]
+        #[structopt(name = "per-hour", long)]
         quota_hour: Option<u64>,
-        #[structopt(rename = "per-day", long)]
+        #[structopt(name = "per-day", long)]
         quota_day: Option<u64>,
-        #[structopt(rename = "per-week", long)]
+        #[structopt(name = "per-week", long)]
         quota_week: Option<u64>,
-        #[structopt(rename = "per-month", long)]
+        #[structopt(name = "per-month", long)]
         quota_month: Option<u64>,
-        #[structopt(rename = "per-year", long)]
+        #[structopt(name = "per-year", long)]
         quota_year: Option<u64>,
     },
     List {
@@ -72,19 +72,27 @@ enum Command {
 #[structopt(name = "jsonrpc-key", about = "RPC Key management CLI utility")]
 pub struct Args {
     #[structopt(long, default_value = "localhost", env = "REDIS_HOST")]
-    redis_host: String,
+    pub redis_host: String,
     #[structopt(long, default_value = "6379", env = "REDIS_PORT")]
-    redis_port: u32,
+    pub redis_port: u32,
     #[structopt(long, default_value = "", env = "REDIS_USERNAME")]
-    redis_username: String,
+    pub redis_username: String,
     #[structopt(long, default_value = "", env = "REDIS_PASSWORD")]
-    redis_password: String,
+    pub redis_password: String,
     #[structopt(long, default_value = "0", env = "REDIS_DB")]
-    redis_db: u32,
-    #[structopt(short, long)]
-    format: Option<OutputFormat>,
+    pub redis_db: u32,
+    #[structopt(long, env = "REDIS_TLS")]
+    pub redis_tls: bool,
+
+    #[structopt(
+        short,
+        long,
+        possible_values = &OutputFormat::variants(), 
+        case_insensitive = true,
+    )]
+    pub format: Option<OutputFormat>,
     #[structopt(subcommand)]
-    operation: Command,
+    pub cmd: Command,
 }
 
 pub fn parse() -> anyhow::Result<Args> {

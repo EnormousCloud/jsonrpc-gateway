@@ -5,15 +5,17 @@ use tracing_subscriber::prelude::*;
 #[structopt(name = "jsonrpc-gw", about = "RPC gateway server")]
 pub struct Args {
     #[structopt(long, default_value = "localhost", env = "REDIS_HOST")]
-    redis_host: String,
+    pub redis_host: String,
     #[structopt(long, default_value = "6379", env = "REDIS_PORT")]
-    redis_port: u32,
+    pub redis_port: u32,
     #[structopt(long, default_value = "", env = "REDIS_USERNAME")]
-    redis_username: String,
+    pub redis_username: String,
     #[structopt(long, default_value = "", env = "REDIS_PASSWORD")]
-    redis_password: String,
+    pub redis_password: String,
     #[structopt(long, default_value = "0", env = "REDIS_DB")]
-    redis_db: u32,
+    pub redis_db: u32,
+    #[structopt(long, env = "REDIS_TLS")]
+    pub redis_tls: bool,
     #[structopt(short, long, default_value = "0.0.0.0:8000", env = "LISTEN")]
     pub addr: String,
 }
