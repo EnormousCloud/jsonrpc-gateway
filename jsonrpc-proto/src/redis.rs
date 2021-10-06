@@ -93,3 +93,30 @@ impl AppStorage {
         self.kv.scan(&self.prefix)
     }
 }
+
+pub struct RpcKeyStorage {
+    prefix: String,
+    kv: RedisStorage,
+}
+
+impl RpcKeyStorage {
+    pub fn from_redis(info: &RedisConnection) -> anyhow::Result<Self> {
+        Ok(Self {
+            prefix: "rk_".to_owned(),
+            kv: RedisStorage::from_redis(info).unwrap(),
+        })
+    }
+    fn realkey(&self, app: &str, key: &str) -> String {
+        format!("{}a{}_{}", self.prefix, app, key)
+    }
+    pub fn set(&mut self, app: &str, key: &str, v: &Application) -> anyhow::Result<()> {
+        self.kv.set(&self.realkey(app, key), v)
+    }
+    pub fn get(&mut self, app: &str, key: &str) -> Option<Application> {
+        self.kv.get(&self.realkey(app, key))
+    }
+    pub fn scan(&mut self, app: &str) -> Vec<Application> {
+        let p = format!("{}a{}_", self.prefix, app);
+        self.kv.scan(&p)
+    }
+}
