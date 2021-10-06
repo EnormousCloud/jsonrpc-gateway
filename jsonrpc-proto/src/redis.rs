@@ -43,27 +43,36 @@ impl<'de> RedisStorage {
         match redis::cmd("GET").arg(key).query::<String>(&mut self.con) {
             Ok(rval) => match serde_json::from_str::<T>(&rval) {
                 Ok(v) => Some(v),
-                Err(_) => None,
+                Err(e) => {
+                    println!("PARSING ERR: {} in key {}", e, key);
+                    None
+                }
             },
             Err(_) => None,
         }
     }
 
-    pub fn scan<T>(&mut self, prefix: &str) -> Vec<T>
-    where
-        T: de::DeserializeOwned,
-    {
+    pub fn scan(&mut self, prefix: &str) -> Vec<String> {
         match redis::cmd("SCAN")
-            .arg(0)
+            .cursor_arg(0)
             .arg("MATCH")
             .arg(format!("{}*", prefix))
-            .query::<String>(&mut self.con)
+            .arg("COUNT")
+            .arg(1000000)
+            .clone()
+            .iter::<String>(&mut self.con)
         {
-            Ok(rval) => match serde_json::from_str::<T>(&rval) {
-                Ok(v) => vec![v],
-                Err(_) => vec![],
-            },
-            Err(_) => vec![],
+            Ok(arr) => {
+                let mut res: Vec<String> = vec![];
+                for x in arr {
+                    res.push(x.clone())
+                }
+                res
+            }
+            Err(e) => {
+                println!("SCAN2 ERR: {}", e);
+                vec![]
+            }
         }
     }
 }
@@ -89,7 +98,7 @@ impl AppStorage {
     pub fn get(&mut self, key: &str) -> Option<Application> {
         self.kv.get(&self.realkey(key))
     }
-    pub fn scan(&mut self) -> Vec<Application> {
+    pub fn scan(&mut self) -> Vec<String> {
         self.kv.scan(&self.prefix)
     }
 }
@@ -115,7 +124,7 @@ impl RpcKeyStorage {
     pub fn get(&mut self, app: &str, key: &str) -> Option<Application> {
         self.kv.get(&self.realkey(app, key))
     }
-    pub fn scan(&mut self, app: &str) -> Vec<Application> {
+    pub fn scan(&mut self, app: &str) -> Vec<String> {
         let p = format!("{}a{}_", self.prefix, app);
         self.kv.scan(&p)
     }

@@ -23,12 +23,10 @@ impl Formatter {
     }
 
     pub fn fail(&self, msg: &'static str) -> anyhow::Result<()> {
-        println!("ERROR: {}", msg);
         Err(anyhow::Error::msg(msg))
     }
 
     pub fn wrap_error(&self, e: anyhow::Error) -> anyhow::Result<()> {
-        println!("ERROR: {}", e);
         Err(e)
     }
 

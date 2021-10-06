@@ -6,9 +6,9 @@ use slug::slugify;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProxyEndpoint {
-    path: String,
-    url: String,
-    strip: bool,
+    pub path: String,
+    pub url: String,
+    pub strip: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
