@@ -3,7 +3,6 @@ use clap::arg_enum;
 arg_enum! {
     #[derive(Debug, Clone)]
     pub enum OutputFormat {
-        Table,
         Json,
         Yaml,
     }
@@ -18,17 +17,18 @@ impl Formatter {
         Self {
             format: match format {
                 Some(x) => x,
-                None => OutputFormat::Table,
+                None => OutputFormat::Yaml,
             },
         }
     }
 
     pub fn fail(&self, msg: &'static str) -> anyhow::Result<()> {
-        // TODO: read self.format
+        println!("ERROR: {}", msg);
         Err(anyhow::Error::msg(msg))
     }
 
     pub fn wrap_error(&self, e: anyhow::Error) -> anyhow::Result<()> {
+        println!("ERROR: {}", e);
         Err(e)
     }
 
@@ -36,8 +36,10 @@ impl Formatter {
     where
         T: serde::Serialize,
     {
-        // TODO: read self.format
-        println!("{}", serde_json::to_string(value).unwrap());
+        match &self.format {
+            OutputFormat::Json => println!("{}", serde_json::to_string(value).unwrap()),
+            OutputFormat::Yaml => println!("{}", serde_yaml::to_string(value).unwrap()),
+        }
         Ok(())
     }
 }
