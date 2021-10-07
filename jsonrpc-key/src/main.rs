@@ -1,7 +1,7 @@
 pub mod args;
 use jsonrpc_proto::formatter::Formatter;
 use jsonrpc_proto::redis::{AppStorage, RedisConnection, RpcKeyStorage};
-use jsonrpc_proto::{RpcKey, RpcKeyAction, RpcResponseStatus};
+use jsonrpc_proto::{RpcKey, RpcKeyAction, RpcKeyResponse, RpcResponseStatus};
 
 fn main() -> anyhow::Result<()> {
     let args = match args::parse() {
@@ -58,7 +58,7 @@ fn main() -> anyhow::Result<()> {
                 quota_month,
                 quota_year,
             );
-            return fmt.out(&jsonrpc_proto::RpcKeyAddResponse {
+            return fmt.out(&RpcKeyResponse::Add {
                 action: RpcKeyAction::Add,
                 status: RpcResponseStatus::OK,
                 key: k.key_id,
@@ -73,7 +73,7 @@ fn main() -> anyhow::Result<()> {
                 Some(x) => x,
                 None => return fmt.fail("key not found"),
             };
-            return fmt.out(&jsonrpc_proto::RpcKeyResponse {
+            return fmt.out(&RpcKeyResponse::Get {
                 action: RpcKeyAction::Add,
                 status: RpcResponseStatus::OK,
                 key: k,
@@ -145,7 +145,7 @@ fn main() -> anyhow::Result<()> {
                 return fmt.wrap_error(e);
             }
             let updated = keys.get(&app, &key).map(|x| x).unwrap();
-            return fmt.out(&jsonrpc_proto::RpcKeyResponse {
+            return fmt.out(&RpcKeyResponse::Get {
                 action: RpcKeyAction::Add,
                 status: RpcResponseStatus::OK,
                 key: updated,
@@ -155,7 +155,7 @@ fn main() -> anyhow::Result<()> {
             if let None = apps.get(&app) {
                 return fmt.fail("application not found");
             };
-            return fmt.out(&jsonrpc_proto::RpcKeyListResponse {
+            return fmt.out(&RpcKeyResponse::List {
                 action: RpcKeyAction::Add,
                 status: RpcResponseStatus::OK,
                 keys: keys.scan(&app),

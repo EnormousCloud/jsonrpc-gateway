@@ -118,23 +118,21 @@ pub enum RpcKeyAction {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct RpcKeyAddResponse {
-    pub action: RpcKeyAction,
-    pub status: RpcResponseStatus,
-    pub key: String,
-    pub key_hash: String,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct RpcKeyListResponse {
-    pub status: RpcResponseStatus,
-    pub action: RpcKeyAction,
-    pub keys: Vec<String>,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct RpcKeyResponse {
-    pub status: RpcResponseStatus,
-    pub action: RpcKeyAction,
-    pub key: RpcKey,
+pub enum RpcKeyResponse {
+    Add {
+        action: RpcKeyAction,
+        status: RpcResponseStatus,
+        key: String,
+        key_hash: String,
+    },
+    List {
+        status: RpcResponseStatus,
+        action: RpcKeyAction,
+        keys: Vec<String>,
+    },
+    Get {
+        status: RpcResponseStatus,
+        action: RpcKeyAction,
+        key: RpcKey,
+    },
 }
