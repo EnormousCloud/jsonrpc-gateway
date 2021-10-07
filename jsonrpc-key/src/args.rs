@@ -10,9 +10,7 @@ pub enum Command {
         #[structopt(short, long)]
         tag: Vec<String>,
         #[structopt(long)]
-        expires: Option<u32>,
-        #[structopt(long)]
-        active: Option<bool>,
+        expires: Option<u64>,
         #[structopt(name = "per-second", long)]
         quota_second: Option<u64>,
         #[structopt(name = "per-minute", long)]
@@ -40,7 +38,7 @@ pub enum Command {
         #[structopt(short, long)]
         key: String,
         #[structopt(long)]
-        expires: Option<u32>,
+        expires: Option<u64>,
         #[structopt(long)]
         active: Option<bool>,
         #[structopt(short, long)]
@@ -62,7 +60,7 @@ pub enum Command {
     },
     List {
         #[structopt(short, long)]
-        app: Option<String>,
+        app: String,
         #[structopt(short, long)]
         tag: Vec<String>,
     },

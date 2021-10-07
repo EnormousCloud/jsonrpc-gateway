@@ -1,8 +1,11 @@
 pub mod formatter;
 pub mod redis;
 
+use fasthash::murmur2;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use slug::slugify;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProxyEndpoint {
@@ -39,7 +42,7 @@ pub struct RpcKey {
     pub key_hash: String,
     pub app: String,
     pub tags: Vec<String>,
-    pub expires: u32,
+    pub expires: u64,
     pub active: bool,
     pub quota_second: Option<u64>,
     pub quota_minute: Option<u64>,
@@ -50,18 +53,52 @@ pub struct RpcKey {
     pub quota_year: Option<u64>,
 }
 
-#[derive(Debug, Clone, Serialize)]
-pub struct RpcKeyAddRequest {
-    pub app: String,
-    pub tags: Vec<String>,
-    pub expires: u32,
-    pub quota_second: Option<u64>,
-    pub quota_minute: Option<u64>,
-    pub quota_hour: Option<u64>,
-    pub quota_day: Option<u64>,
-    pub quota_week: Option<u64>,
-    pub quota_month: Option<u64>,
-    pub quota_year: Option<u64>,
+impl RpcKey {
+    pub fn generate(
+        app: String,
+        tag: Vec<String>,
+        expires: Option<u64>,
+        quota_second: Option<u64>,
+        quota_minute: Option<u64>,
+        quota_hour: Option<u64>,
+        quota_day: Option<u64>,
+        quota_week: Option<u64>,
+        quota_month: Option<u64>,
+        quota_year: Option<u64>,
+    ) -> Self {
+        const CHARSET: &[u8] = b"abcdefghijkmnpqrstuvwxyz0123456789";
+        let mut rng = rand::thread_rng();
+        let key_id: String = (0..32)
+            .map(|_| {
+                let idx = rng.gen_range(0..CHARSET.len());
+                CHARSET[idx] as char
+            })
+            .collect();
+        let key_hash = format!("{:x}", murmur2::hash64(key_id.as_bytes()));
+        Self {
+            key_id,
+            key_hash,
+            app,
+            tags: tag.clone(),
+            expires: match expires {
+                Some(x) => x,
+                None => {
+                    let dur = SystemTime::now()
+                        .duration_since(UNIX_EPOCH)
+                        .expect("Time went backwards");
+                    dur.as_secs() + 315360000 // expires 10 years from now
+                }
+            },
+            quota_second,
+            quota_minute,
+            quota_hour,
+            quota_day,
+            quota_week,
+            quota_month,
+            quota_year,
+            active: true,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -92,12 +129,12 @@ pub struct RpcKeyAddResponse {
 pub struct RpcKeyListResponse {
     pub status: RpcResponseStatus,
     pub action: RpcKeyAction,
-    pub keys: Vec<RpcKey>,
+    pub keys: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct RpcKeyResponse {
     pub status: RpcResponseStatus,
     pub action: RpcKeyAction,
-    pub keys: Vec<RpcKey>,
+    pub key: RpcKey,
 }

@@ -1,4 +1,4 @@
-use crate::Application;
+use crate::{Application, RpcKey};
 use serde::{de, Serialize};
 
 pub struct RedisConnection {
@@ -118,10 +118,10 @@ impl RpcKeyStorage {
     fn realkey(&self, app: &str, key: &str) -> String {
         format!("{}a{}_{}", self.prefix, app, key)
     }
-    pub fn set(&mut self, app: &str, key: &str, v: &Application) -> anyhow::Result<()> {
+    pub fn set(&mut self, app: &str, key: &str, v: &RpcKey) -> anyhow::Result<()> {
         self.kv.set(&self.realkey(app, key), v)
     }
-    pub fn get(&mut self, app: &str, key: &str) -> Option<Application> {
+    pub fn get(&mut self, app: &str, key: &str) -> Option<RpcKey> {
         self.kv.get(&self.realkey(app, key))
     }
     pub fn scan(&mut self, app: &str) -> Vec<String> {
