@@ -96,12 +96,54 @@ fn main() -> anyhow::Result<()> {
             if let None = apps.get(&app) {
                 return fmt.fail("application not found");
             };
-            let mut k = match keys.get(&app, &key) {
+            let mut doc = match keys.get(&app, &key) {
                 Some(x) => x,
                 None => return fmt.fail("key not found"),
             };
-            // TODO:
-
+            if let Some(expires) = expires {
+                doc.expires = expires
+            }
+            if let Some(active) = active {
+                doc.active = active
+            }
+            if let Some(quota_second) = quota_second {
+                doc.quota_second = Some(quota_second)
+            }
+            if let Some(quota_minute) = quota_minute {
+                doc.quota_minute = Some(quota_minute)
+            }
+            if let Some(quota_hour) = quota_hour {
+                doc.quota_hour = Some(quota_hour)
+            }
+            if let Some(quota_day) = quota_day {
+                doc.quota_day = Some(quota_day)
+            }
+            if let Some(quota_week) = quota_week {
+                doc.quota_week = Some(quota_week)
+            }
+            if let Some(quota_month) = quota_month {
+                doc.quota_month = Some(quota_month)
+            }
+            if let Some(quota_year) = quota_year {
+                doc.quota_year = Some(quota_year)
+            }
+            for t in tag {
+                match t.get(..1) {
+                    Some("-") => {
+                        let excluded: String = t.chars().skip(1).collect();
+                        doc.tags = doc
+                            .tags
+                            .iter()
+                            .filter(|x| **x != excluded)
+                            .map(|x| x.to_string())
+                            .collect();
+                    }
+                    _ => doc.tags.push(t),
+                };
+            }
+            if let Err(e) = keys.set(&app, &key, &doc) {
+                return fmt.wrap_error(e);
+            }
             let updated = keys.get(&app, &key).map(|x| x).unwrap();
             return fmt.out(&jsonrpc_proto::RpcKeyResponse {
                 action: RpcKeyAction::Add,
@@ -120,5 +162,4 @@ fn main() -> anyhow::Result<()> {
             });
         }
     }
-    Ok(())
 }
