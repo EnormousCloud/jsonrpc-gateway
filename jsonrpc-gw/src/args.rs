@@ -1,3 +1,4 @@
+use jsonrpc_proto::redis::RedisConnection;
 use structopt::StructOpt;
 use tracing_subscriber::prelude::*;
 
@@ -16,8 +17,23 @@ pub struct Args {
     pub redis_db: u32,
     #[structopt(long, env = "REDIS_TLS")]
     pub redis_tls: bool,
+    #[structopt(short, long, default_value = "", env = "APPLICATION")]
+    pub application: String,
     #[structopt(short, long, default_value = "0.0.0.0:8000", env = "LISTEN")]
     pub addr: String,
+}
+
+impl Args {
+    pub fn get_redis_connection(&self) -> jsonrpc_proto::redis::RedisConnection {
+        RedisConnection {
+            host: self.redis_host.clone(),
+            port: self.redis_port.clone(),
+            username: self.redis_username.clone(),
+            password: self.redis_password.clone(),
+            db: self.redis_db,
+            use_tls: self.redis_tls,
+        }
+    }
 }
 
 pub fn parse() -> anyhow::Result<Args> {
