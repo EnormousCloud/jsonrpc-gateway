@@ -18,6 +18,13 @@ app_build() {
     cd ..
 }
 
+app_install() {
+    cp ./target/release/jsonrpc-app ~/.cargo/bin/jsonrpc-app
+    cp ./target/release/jsonrpc-key ~/.cargo/bin/jsonrpc-key
+    cp ./target/release/jsonrpc-gw ~/.cargo/bin/jsonrpc-gw
+}
+
 [[ "$1" == "redis" ]] && { shift; run_redis; }
 [[ "$1" == "build" ]] && { shift; app_build; }
+[[ "$1" == "install" ]] && { shift; app_install; }
 
