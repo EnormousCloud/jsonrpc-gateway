@@ -156,7 +156,7 @@ fn main() -> anyhow::Result<()> {
                 return fmt.fail("application not found");
             };
             return fmt.out(&RpcKeyResponse::List {
-                action: RpcKeyAction::Add,
+                action: RpcKeyAction::List,
                 status: RpcResponseStatus::OK,
                 keys: keys.scan(&app),
             });
