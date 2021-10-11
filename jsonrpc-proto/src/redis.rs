@@ -65,7 +65,8 @@ impl<'de> RedisStorage {
             Ok(arr) => {
                 let mut res: Vec<String> = vec![];
                 for x in arr {
-                    res.push(x.clone())
+                    let k = x.chars().skip(prefix.len()).collect();
+                    res.push(k);
                 }
                 res
             }
