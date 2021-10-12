@@ -1,7 +1,9 @@
 pub mod formatter;
 pub mod redis;
 
-use fasthash::murmur2;
+use murmur3::murmur3_32;
+use std::io::Cursor;
+
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use slug::slugify;
@@ -74,7 +76,8 @@ impl RpcKey {
                 CHARSET[idx] as char
             })
             .collect();
-        let key_hash = format!("{:x}", murmur2::hash64(key_id.as_bytes()));
+        let hash_bytes = murmur3_32(&mut Cursor::new(key_id.as_bytes()), 0).expect("hashing error");
+        let key_hash = format!("{:x}", hash_bytes);
         Self {
             key_id,
             key_hash,
