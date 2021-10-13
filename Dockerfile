@@ -12,7 +12,8 @@ FROM alpine:latest
 EXPOSE 8000
 ENV TZ=Etc/UTC \
     APP_USER=appuser \
-    RUST_BACKTRACE=1
+    RUST_BACKTRACE=1 \
+    LOG_LEVEL=info,ureq=warn 
 RUN addgroup -S $APP_USER && adduser -S -g $APP_USER $APP_USER
 COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/jsonrpc-app /usr/src/app/jsonrpc-app
 COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/jsonrpc-key /usr/src/app/jsonrpc-key
