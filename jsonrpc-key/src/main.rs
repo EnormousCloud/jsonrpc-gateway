@@ -39,6 +39,7 @@ fn main() -> anyhow::Result<()> {
             quota_month,
             quota_year,
         } => {
+            let app_str = app.clone();
             let a = match apps.get(&app) {
                 Some(x) => x,
                 None => return fmt.fail("application not found"),
@@ -46,7 +47,7 @@ fn main() -> anyhow::Result<()> {
             if !a.active {
                 return fmt.fail("application is not active");
             }
-            let k = RpcKey::generate(
+            let doc = RpcKey::generate(
                 app,
                 tag,
                 expires,
@@ -58,11 +59,14 @@ fn main() -> anyhow::Result<()> {
                 quota_month,
                 quota_year,
             );
+            if let Err(e) = keys.set(&app_str, &doc.key_id, &doc) {
+                return fmt.wrap_error(e);
+            }
             return fmt.out(&RpcKeyResponse::Add {
                 action: RpcKeyAction::Add,
                 status: RpcResponseStatus::OK,
-                key: k.key_id,
-                key_hash: k.key_hash,
+                key: doc.key_id,
+                key_hash: doc.key_hash,
             });
         }
         args::Command::Get { app, key } => {
