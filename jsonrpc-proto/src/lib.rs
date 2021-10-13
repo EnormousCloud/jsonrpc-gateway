@@ -105,9 +105,10 @@ impl RpcKey {
 }
 
 #[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub enum RpcResponseStatus {
+    #[serde(rename = "ok")]
     OK,
+    #[serde(rename = "failure")]
     Failure,
 }
 
