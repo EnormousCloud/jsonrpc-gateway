@@ -17,7 +17,10 @@ pub async fn proxy_rpc(mut req: Request<State>) -> Result {
     let mut guard = state.rpckeys.lock().expect("mutex lock error");
     let rpc_key = match guard.get(&state.default_app.name, &used_key) {
         Some(x) => x,
-        None => return Err(Error::from_str(403, "access denied")),
+        None => {
+            info!("request key = {}", used_key);
+            return Err(Error::from_str(403, "access denied"));
+        },
     };
     info!(
         "used_key = {} details = {:?} proxy = {:?} payload = {}",
